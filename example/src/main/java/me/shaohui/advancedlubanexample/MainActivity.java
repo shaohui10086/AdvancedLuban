@@ -78,7 +78,9 @@ public class MainActivity extends AppCompatActivity {
         int size = 500;
         Luban.get(this)
                 .load(mFile)
-                .setMaxWidth(1000)
+                .setMaxSize(500)
+                .setMaxHeight(1920)
+                .setMaxWidth(1080)
                 .putGear(Luban.CUSTOM_GEAR)
                 .asObservable()
                 .doOnRequest(new Action1<Long>() {
