@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AdvancedLuban</string>
+    <string name="select_image">选择图片</string>
+    <string name="compress_image">压缩图片1</string>
+    <string name="compress_image_2">压缩图片2</string>
+
+</resources>
