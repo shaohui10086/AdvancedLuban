@@ -1,7 +1,7 @@
 # AdvancedLuban
 > [`Luban`](https://github.com/Curzibn/Luban)（鲁班） —— `Android`图片压缩工具，仿微信朋友圈压缩策略。
 
-`AdvancedLuban` —— 是一个在`Luban`的基础上根据自己的一些业务需求, 进行了一些扩展, 增加了一些 Feature
+`AdvancedLuban` —— 在`Luban`的基础上根据一些特定需求, 进行了扩展, 增加了一些新特性，专注更好的图片压缩体验
 
 ## Import
 
@@ -23,7 +23,7 @@ or Gradle
 
 > 部分内容引用自`Luban`
 
-### Listener方式
+### `Listener`方式
 
 `Luban`内部采用`IO`线程进行图片压缩，外部调用只需设置好结果监听即可：
 
@@ -45,13 +45,10 @@ or Gradle
 
 ### 压缩模式
 
-1. THIRD_GEAR 
-
-    原`Luban`的主要功能，提供了类似微信的压缩效果，适用普通压缩，没有文件大小限制以及图片的宽高限制
     
-2. CUSTOM_GEAR
+#### 1. CUSTOM_GEAR
 
-    `AdvancedLuban`增加的个性化压缩，根据限制要求对图片进行压缩，可以限制：图片的宽度、高度以及图片文件的大小
+`AdvancedLuban`增加的个性化压缩，根据限制要求对图片进行压缩，可以限制：图片的宽度、高度以及图片文件的大小
     
         Luban.get(this)
                 .load(mFile)
@@ -60,12 +57,16 @@ or Gradle
                 .setMaxWidth(1080)              // 限制图片宽度
                 .putGear(Luban.CUSTOM_GEAR)     // 使用 CUSTOM_GEAR 压缩模式
                 .asObservable()
-    
-3. FIRST_GEAR
 
-    `THIRD_GEAR`的简化版本，压缩之后的图片分辨率小于 1280 x 720, 文件最后小于60Kb，特殊情况下，小于原图片的1/5，适用于快速压缩，不计较最终图片品质
+#### 2. THIRD_GEAR 
+
+原`Luban`的主要功能，提供了类似微信的压缩效果，适用于普通压缩，没有文件大小限制以及图片的宽高限制
+
+#### 3. FIRST_GEAR
+
+`THIRD_GEAR`的简化版本，压缩之后的图片分辨率小于 1280 x 720, 文件最后小于60Kb，特殊情况下，小于原图片的1/5，适用于快速压缩，不计较最终图片品质
     
-大家可以根据自己的需求选择不同的压缩模式以及调用方ｂ（￣▽￣）ｄ ！最后，欢迎大家提Issue
+大家可以根据自己的需求选择不同的压缩模式以及调用方式 ｂ（￣▽￣）ｄ ！最后，欢迎大家提Issue
 
 ## Thanks For
 - https://github.com/Curzibn/Luban
