@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -89,73 +90,62 @@ public class Luban {
         return INSTANCE;
     }
 
-    public Luban launch() {
+    public Subscription launch() {
         checkNotNull(mFile,
                 "the image file cannot be null, please call .load() before this method!");
 
         if (compressListener != null) compressListener.onStart();
-
-        if (gear == Luban.FIRST_GEAR) {
-            Observable.just(mFile)
-                    .map(new Func1<File, File>() {
-                        @Override
-                        public File call(File file) {
-                            return firstCompress(file);
-                        }
-                    })
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnError(new Action1<Throwable>() {
-                        @Override
-                        public void call(Throwable throwable) {
-                            if (compressListener != null) compressListener.onError(throwable);
-                        }
-                    })
-                    .onErrorResumeNext(Observable.<File>empty())
-                    .filter(new Func1<File, Boolean>() {
-                        @Override
-                        public Boolean call(File file) {
-                            return file != null;
-                        }
-                    })
-                    .subscribe(new Action1<File>() {
-                        @Override
-                        public void call(File file) {
-                            if (compressListener != null) compressListener.onSuccess(file);
-                        }
-                    });
-        } else if (gear == Luban.THIRD_GEAR) {
-            Observable.just(mFile)
-                    .map(new Func1<File, File>() {
-                        @Override
-                        public File call(File file) {
-                            return thirdCompress(file);
-                        }
-                    })
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnError(new Action1<Throwable>() {
-                        @Override
-                        public void call(Throwable throwable) {
-                            if (compressListener != null) compressListener.onError(throwable);
-                        }
-                    })
-                    .onErrorResumeNext(Observable.<File>empty())
-                    .filter(new Func1<File, Boolean>() {
-                        @Override
-                        public Boolean call(File file) {
-                            return file != null;
-                        }
-                    })
-                    .subscribe(new Action1<File>() {
-                        @Override
-                        public void call(File file) {
-                            if (compressListener != null) compressListener.onSuccess(file);
-                        }
-                    });
+        Observable<File> observable;
+        switch (gear) {
+            case CUSTOM_GEAR:
+                observable = Observable.just(mFile).map(new Func1<File, File>() {
+                    @Override
+                    public File call(File file) {
+                        return customCompress(file);
+                    }
+                });
+                break;
+            case THIRD_GEAR:
+                observable = Observable.just(mFile).map(new Func1<File, File>() {
+                    @Override
+                    public File call(File file) {
+                        return thirdCompress(file);
+                    }
+                });
+                break;
+            case FIRST_GEAR:
+                observable = Observable.just(mFile).map(new Func1<File, File>() {
+                    @Override
+                    public File call(File file) {
+                        return firstCompress(file);
+                    }
+                });
+                break;
+            default:
+                observable = Observable.empty();
         }
 
-        return this;
+        return observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        if (compressListener != null) compressListener.onError(throwable);
+                    }
+                })
+                .onErrorResumeNext(Observable.<File>empty())
+                .filter(new Func1<File, Boolean>() {
+                    @Override
+                    public Boolean call(File file) {
+                        return file != null;
+                    }
+                })
+                .subscribe(new Action1<File>() {
+                    @Override
+                    public void call(File file) {
+                        if (compressListener != null) compressListener.onSuccess(file);
+                    }
+                });
     }
 
     public Luban load(File file) {
