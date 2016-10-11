@@ -1,35 +1,7 @@
 # AdvancedLuban
-[`Luban`](https://github.com/Curzibn/Luban)（鲁班） —— `Android`图片压缩工具，仿微信朋友圈压缩策略。
-而`AdvancedLuban` —— 是一个在`Luban`的基础上根据自己的一些业务需求, 进行了一些扩展, 完善了一些Luban的
+> [`Luban`](https://github.com/Curzibn/Luban)（鲁班） —— `Android`图片压缩工具，仿微信朋友圈压缩策略。
 
-## Feature
-相较于`Luban`, `AdvancedLuban`做的最大的扩展就是提供了一个自定义的压缩, 可以根据自己的需求, 来限制图片的宽度、高度或者文件大小
-
-        Luban.get(this)
-                    .load(mFile)
-                    .setMaxSize(500) // 单位是Kb
-                    .setMaxHeight(1920)   // 三个限制条件可任意组合
-                    .setMaxWidth(1080)
-                    .putGear(Luban.CUSTOM_GEAR)
-                    .asObservable()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Action1<File>() {
-                        @Override
-                        public void call(File file) {
-                            // do anyting you want
-                        }
-                    });
-至此 `AdvancedLuban` 已经有三种压缩方式可以选择:
-
-        - CUSTOM_GEAR
-        - THIRD_GEAR
-        - FIRST_GEAR
-        
-如果你有明确的图片宽高或者文件大小限制的话, 那么选择`AdvancedLuban`的`CUSTOM_GEAR`是非常方便的, 反之, 你也可以选择`THIRD_GEAR` 或者`FIRST_GEAR`, 
-
-具体后两种压缩模式的使用可以参考`Luban`项目下的使用说明
-
-最大的欣慰就是这个`CUSTOM_GEAR`压缩相较于之前`Luban`, 时间效率上没有落后, 而且还有些许的提升
+`AdvancedLuban` —— 是一个在`Luban`的基础上根据自己的一些业务需求, 进行了一些扩展, 增加了一些 Feature
 
 ## Import
 
@@ -38,17 +10,62 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.0</version>
+      <version>1.0.1</version>
       <type>pom</type>
     </dependency>
 
     
-Gradle
+or Gradle
 
-	dependencies {
-        compile 'me.shaohui.advancedluban:library:1.0'
-     }
+	compile 'me.shaohui.advancedluban:library:1.0.1'
 
+## Usage
+
+> 部分内容引用自`Luban`
+
+### Listener方式
+
+`Luban`内部采用`IO`线程进行图片压缩，外部调用只需设置好结果监听即可：
+
+    Luban.get(this)                     // 初始化Luban
+        .load(File)                     // 传人要压缩的图片
+        .putGear(Luban.THIRD_GEAR)      // 设定压缩模式，默认 THIRD_GEAR
+        .setCompressListener(listener)  // 设置压缩监听
+        .launch();                      // 启动压缩
+
+### `RxJava`方式
+
+`RxJava`调用方式同样默认`IO`线程进行压缩，可在任意线程观察：
+
+    Luban.get(this)                                     
+            .load(file)                               
+            .putGear(Luban.CUSTOM_GEAR)                 
+            .asObservable()                             // 生成Observable
+            .subscribe(successAction, errorAction)      // 订阅压缩事件
+
+### 压缩模式
+
+1. THIRD_GEAR 
+
+    原`Luban`的主要功能，提供了类似微信的压缩效果，适用普通压缩，没有文件大小限制以及图片的宽高限制
+    
+2. CUSTOM_GEAR
+
+    `AdvancedLuban`增加的个性化压缩，根据限制要求对图片进行压缩，可以限制：图片的宽度、高度以及图片文件的大小
+    
+        Luban.get(this)
+                .load(mFile)
+                .setMaxSize(500)                // 限制最终图片大小（单位：Kb）
+                .setMaxHeight(1920)             // 限制图片高度
+                .setMaxWidth(1080)              // 限制图片宽度
+                .putGear(Luban.CUSTOM_GEAR)     // 使用 CUSTOM_GEAR 压缩模式
+                .asObservable()
+    
+3. FIRST_GEAR
+
+    `THIRD_GEAR`的简化版本，压缩之后的图片分辨率小于 1280 x 720, 文件最后小于60Kb，特殊情况下，小于原图片的1/5，适用于快速压缩，不计较最终图片品质
+    
+大家可以根据自己的需求选择不同的压缩模式以及调用方ｂ（￣▽￣）ｄ ！最后，欢迎大家提Issue
 
 ## Thanks For
 - https://github.com/Curzibn/Luban
