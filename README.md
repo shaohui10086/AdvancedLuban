@@ -25,7 +25,6 @@ or Gradle
 
 ## Usage
 
-> 部分内容引用自`Luban`
 
 ### `Listener`方式
 
