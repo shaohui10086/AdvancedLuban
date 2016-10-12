@@ -1,7 +1,7 @@
 # AdvancedLuban
 > [`Luban`](https://github.com/Curzibn/Luban)（鲁班） —— `Android`图片压缩工具，仿微信朋友圈压缩策略。
 
-`AdvancedLuban` —— 在`Luban`的基础上根据一些特定需求, 进行了扩展, 增加了一些新特性，专注更好的图片压缩体验
+`AdvancedLuban` —— 在`Luban`的基础上根据一些需求, 进行了扩展, 增加了一些新特性，自定义压缩，多图同步压缩，专注更好的图片压缩体验
 
 ## Import
 
@@ -10,14 +10,14 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.0.1</version>
+      <version>1.1</version>
       <type>pom</type>
     </dependency>
 
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.0.1'
+	compile 'me.shaohui.advancedluban:library:1.1'
 
 ## Usage
 
@@ -30,8 +30,7 @@ or Gradle
     Luban.get(this)                     // 初始化Luban
         .load(File)                     // 传人要压缩的图片
         .putGear(Luban.THIRD_GEAR)      // 设定压缩模式，默认 THIRD_GEAR
-        .setCompressListener(listener)  // 设置压缩监听
-        .launch();                      // 启动压缩
+        .launch(listener);              // 启动压缩并设置监听
 
 ### `RxJava`方式
 
@@ -65,6 +64,24 @@ or Gradle
 #### 3. FIRST_GEAR
 
 `THIRD_GEAR`的简化版本，压缩之后的图片分辨率小于 1280 x 720, 文件最后小于60Kb，特殊情况下，小于原图片的1/5，适用于快速压缩，不计较最终图片品质
+
+### 多图同步压缩
+
+如果你选择的调用方式的是`Listener`方式:
+
+        Luban.get(this)
+                .putGear(Luban.CUSTOM_GEAR)             
+                .load(fileList)                     // 加载所有图片
+                .launch(multiCompressListener);     // 传入一个 OnMultiCompressListener 
+
+`RxJava` 方式：
+
+        Luban.get(this)
+                .putGear(Luban.CUSTOM_GEAR)             
+                .load(fileList)                     // 加载所有图片
+                .asListObservable()                 // 生成Observable<List> 返回压缩成功的所有图片结果
+
+### Issue
     
 大家可以根据自己的需求选择不同的压缩模式以及调用方式 ｂ（￣▽￣）ｄ ！最后，欢迎大家提Issue
 
