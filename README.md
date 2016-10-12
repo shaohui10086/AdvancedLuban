@@ -1,4 +1,8 @@
 # AdvancedLuban
+[![build](https://img.shields.io/badge/build-1.1-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
+
+
 > [`Luban`](https://github.com/Curzibn/Luban)（鲁班） —— `Android`图片压缩工具，仿微信朋友圈压缩策略。
 
 `AdvancedLuban` —— 在`Luban`的基础上根据一些需求, 进行了扩展, 增加了一些新特性，自定义压缩，多图同步压缩，专注更好的图片压缩体验
