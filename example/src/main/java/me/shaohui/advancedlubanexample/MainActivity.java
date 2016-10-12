@@ -11,6 +11,7 @@ import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -18,7 +19,10 @@ import com.github.piasy.fresco.draweeview.shaped.ShapedDraweeView;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import me.shaohui.advancedluban.Luban;
+import me.shaohui.advancedluban.OnCompressListener;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
@@ -30,13 +34,21 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView mImageView;
 
+    private TextView mTextView;
+
+    private List<File> mFileList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Fresco.initialize(this);
 
+        mFileList = new ArrayList<>();
+
         mImageView = (ImageView) findViewById(R.id.image_result);
+
+        mTextView = (TextView) findViewById(R.id.text_view);
 
         findViewById(R.id.select_image).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,8 +69,16 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.compress_image2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                compressImage2();
+                //compressImage2();
+                compressImage3();
                 //showImageView();
+                compressImageList();
+            }
+        });
+        findViewById(R.id.add_image).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                compressImageList();
             }
         });
     }
@@ -78,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         int size = 500;
         Luban.get(this)
                 .load(mFile)
-                .setMaxSize(500)
+                .setMaxSize(size)
                 .setMaxHeight(1920)
                 .setMaxWidth(1080)
                 .putGear(Luban.CUSTOM_GEAR)
@@ -125,6 +145,45 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void compressImage3() {
+        Luban.get(this).load(mFile).putGear(Luban.THIRD_GEAR).launch(new OnCompressListener() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(File file) {
+                mImageView.setImageURI(Uri.parse(file.getPath()));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
+    }
+
+    private void compressImageList() {
+        Luban.get(this)
+                .load(mFileList)
+                .setMaxSize(500)
+                .putGear(Luban.CUSTOM_GEAR)
+                .asListObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<File>>() {
+                    @Override
+                    public void call(List<File> fileList) {
+                        String str = "";
+                        for (File file : fileList) {
+                            str = str + file.getPath() + "\n";
+                        }
+                        mTextView.setText(str);
+                        mImageView.setImageURI(Uri.parse(fileList.get(fileList.size() - 1).getPath()));
+                    }
+                });
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
@@ -143,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
             cursor.moveToFirst();
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
             mFile = new File(path);
+            mFileList.add(mFile);
             Log.i("TAG:origin", Formatter.formatFileSize(this, mFile.length()));
             cursor.close();
         }

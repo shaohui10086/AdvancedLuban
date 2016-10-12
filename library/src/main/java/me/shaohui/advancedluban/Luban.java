@@ -12,11 +12,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 import static me.shaohui.advancedluban.Preconditions.checkNotNull;
@@ -35,15 +38,20 @@ public class Luban {
     private final File mCacheDir;
 
     private OnCompressListener compressListener;
+
     private File mFile;
+
+    private List<File> mFileList;
+
     private int gear = THIRD_GEAR;
+
     private String filename;
 
     private int mMaxSize;
     private int mMaxHeight;
     private int mMaxWidth;
 
-    private Luban(File cacheDir) {
+    protected Luban(File cacheDir) {
         mCacheDir = cacheDir;
     }
 
@@ -90,60 +98,125 @@ public class Luban {
         return INSTANCE;
     }
 
+    @Deprecated
     public Subscription launch() {
         checkNotNull(mFile,
                 "the image file cannot be null, please call .load() before this method!");
 
-        if (compressListener != null) compressListener.onStart();
-        Observable<File> observable;
-        switch (gear) {
-            case CUSTOM_GEAR:
-                observable = Observable.just(mFile).map(new Func1<File, File>() {
+        return Observable.just(mFile)
+                .map(new Func1<File, File>() {
                     @Override
                     public File call(File file) {
-                        return customCompress(file);
-                    }
-                });
-                break;
-            case THIRD_GEAR:
-                observable = Observable.just(mFile).map(new Func1<File, File>() {
-                    @Override
-                    public File call(File file) {
-                        return thirdCompress(file);
-                    }
-                });
-                break;
-            case FIRST_GEAR:
-                observable = Observable.just(mFile).map(new Func1<File, File>() {
-                    @Override
-                    public File call(File file) {
-                        return firstCompress(file);
-                    }
-                });
-                break;
-            default:
-                observable = Observable.empty();
-        }
-
-        return observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        if (compressListener != null) compressListener.onError(throwable);
+                        return compressImage(gear, file);
                     }
                 })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .onErrorResumeNext(Observable.<File>empty())
-                .filter(new Func1<File, Boolean>() {
+                .doOnRequest(new Action1<Long>() {
                     @Override
-                    public Boolean call(File file) {
-                        return file != null;
+                    public void call(Long aLong) {
+                        compressListener.onStart();
                     }
                 })
                 .subscribe(new Action1<File>() {
                     @Override
                     public void call(File file) {
                         if (compressListener != null) compressListener.onSuccess(file);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        compressListener.onError(throwable);
+                    }
+                });
+    }
+
+    // for single file
+    public Subscription launch(final OnCompressListener listener) {
+        checkNotNull(listener, "the listener cannot be null !");
+
+        if (mFile == null) {
+            if (mFileList != null && !mFileList.isEmpty()) {
+                mFile = mFileList.get(0);
+            } else {
+                throw new NullPointerException(
+                        "the image file cannot be null, please call .load() before this method!");
+            }
+        }
+
+        return Observable.just(mFile)
+                .map(new Func1<File, File>() {
+                    @Override
+                    public File call(File file) {
+                        return compressImage(gear, file);
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<File>empty())
+                .doOnRequest(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        listener.onStart();
+                    }
+                })
+                .subscribe(new Action1<File>() {
+                    @Override
+                    public void call(File file) {
+                        listener.onSuccess(file);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        listener.onError(throwable);
+                    }
+                });
+    }
+
+    // for multi file
+    public Subscription launch(final OnMultiCompressListener listener) {
+        checkNotNull(listener, "the listener cannot be null !");
+
+        if (mFileList == null) {
+            if (mFile != null) {
+                mFileList = new ArrayList<>();
+                mFileList.add(mFile);
+            } else {
+                throw new NullPointerException(
+                        "the file list cannot be null, please call .load() before this method!");
+            }
+        }
+
+        List<Observable<File>> observables = new ArrayList<>();
+        for (File file : mFileList) {
+            observables.add(Observable.just(file).map(new Func1<File, File>() {
+                @Override
+                public File call(File file) {
+                    return compressImage(gear, file);
+                }
+            }));
+        }
+
+        return Observable.merge(observables)
+                .subscribeOn(Schedulers.io())
+                .toSortedList(SORT_FILE)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnRequest(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        listener.onStart();
+                    }
+                })
+                .subscribe(new Action1<List<File>>() {
+                    @Override
+                    public void call(List<File> fileList) {
+                        listener.onSuccess(fileList);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        listener.onError(throwable);
                     }
                 });
     }
@@ -153,6 +226,12 @@ public class Luban {
         return this;
     }
 
+    public Luban load(List<File> fileList) {
+        mFileList = fileList;
+        return this;
+    }
+
+    @Deprecated
     public Luban setCompressListener(OnCompressListener listener) {
         compressListener = listener;
         return this;
@@ -184,36 +263,52 @@ public class Luban {
     }
 
     public Observable<File> asObservable() {
+        checkNotNull(mFile,
+                "the image file cannot be null, please call .load() before this method!");
+
+        return Observable.just(mFile).subscribeOn(Schedulers.io()).map(new Func1<File, File>() {
+            @Override
+            public File call(File file) {
+                return compressImage(gear, file);
+            }
+        });
+    }
+
+    public Observable<List<File>> asListObservable() {
+        checkNotNull(mFileList,
+                "the image list cannot be null, please call .load() before this method!");
+
+        List<Observable<File>> observables = new ArrayList<>();
+        for (File file : mFileList) {
+            observables.add(Observable.just(file).map(new Func1<File, File>() {
+                @Override
+                public File call(File file) {
+                    return compressImage(gear, file);
+                }
+            }));
+        }
+        return Observable.merge(observables)
+                .subscribeOn(Schedulers.io())
+                .toSortedList(SORT_FILE);
+    }
+
+    private Func2<File, File, Integer> SORT_FILE = new Func2<File, File, Integer>() {
+        @Override
+        public Integer call(File file, File file2) {
+            return file.getName().compareTo(file2.getName());
+        }
+    };
+
+    private File compressImage(int gear, File file) {
         switch (gear) {
             case THIRD_GEAR:
-                return Observable.just(mFile)
-                        .subscribeOn(Schedulers.io())
-                        .map(new Func1<File, File>() {
-                            @Override
-                            public File call(File file) {
-                                return thirdCompress(file);
-                            }
-                        });
+                return thirdCompress(file);
             case CUSTOM_GEAR:
-                return Observable.just(mFile)
-                        .subscribeOn(Schedulers.io())
-                        .map(new Func1<File, File>() {
-                            @Override
-                            public File call(File file) {
-                                return customCompress(file);
-                            }
-                        });
+                return customCompress(file);
             case FIRST_GEAR:
-                return Observable.just(mFile)
-                        .subscribeOn(Schedulers.io())
-                        .map(new Func1<File, File>() {
-                            @Override
-                            public File call(File file) {
-                                return firstCompress(file);
-                            }
-                        });
+                return firstCompress(file);
             default:
-                return Observable.empty();
+                return file;
         }
     }
 
@@ -281,8 +376,8 @@ public class Luban {
         int longSide = 720;
         int shortSide = 1280;
 
-        String filePath = file.getAbsolutePath();
         String thumbFilePath = getCacheFilePath();
+        String filePath = file.getAbsolutePath();
 
         long size = 0;
         long maxSize = file.length() / 5;
@@ -318,8 +413,9 @@ public class Luban {
     }
 
     private File customCompress(@NonNull File file) {
-        String filePath = file.getAbsolutePath();
         String thumbFilePath = getCacheFilePath();
+        String filePath = file.getAbsolutePath();
+
         int angle = getImageSpinAngle(filePath);
         long fileSize = mMaxSize > 0 ? mMaxSize : file.length() / 1024;
 
@@ -349,10 +445,13 @@ public class Luban {
     }
 
     private String getCacheFilePath() {
+        String name ;
         if (TextUtils.isEmpty(filename)) {
-            filename = System.currentTimeMillis() + ".jpg";
+            name = System.currentTimeMillis() + ".jpg";
+        } else {
+            name = filename;
         }
-        return mCacheDir.getAbsolutePath() + File.separator + filename;
+        return mCacheDir.getAbsolutePath() + File.separator + name;
     }
 
     /**

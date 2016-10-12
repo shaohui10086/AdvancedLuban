@@ -14,11 +14,23 @@
         tools:context="me.shaohui.advancedlubanexample.MainActivity"
         >
 
+    <TextView
+            android:id="@+id/text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
     <Button
             android:id="@+id/select_image"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:text="@string/select_image"
+            />
+    <Button
+            android:id="@+id/add_image"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="@string/add_image"
             />
     <Button
             android:id="@+id/compress_image"
