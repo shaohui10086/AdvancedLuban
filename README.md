@@ -1,11 +1,11 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.1-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.1.2-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 
 > [`Luban`](https://github.com/Curzibn/Luban)（鲁班） —— `Android`图片压缩工具，仿微信朋友圈压缩策略。
 
-`AdvancedLuban` —— 在`Luban`的基础上根据一些需求, 进行了扩展, 增加了一些新特性，自定义压缩，多图同步压缩，专注更好的图片压缩体验
+`AdvancedLuban` —— 是一个方便简约的 `Android` 图片压缩工具库，提供多种压缩策略（包括`Luban`原有的压缩策略），多种调用方式，自定义压缩，多图同步压缩，专注更好的图片压缩使用体验
 
 ## Import
 
@@ -21,14 +21,14 @@ Maven
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.1'
+	compile 'me.shaohui.advancedluban:library:1.1.2'
 
 ## Usage
 
 
 ### `Listener`方式
 
-`Luban`内部采用`IO`线程进行图片压缩，外部调用只需设置好结果监听即可：
+`AdvancedLuban`内部采用`Computation`线程进行图片压缩，外部调用只需设置好结果监听即可：
 
     Luban.get(this)                     // 初始化Luban
         .load(File)                     // 传人要压缩的图片
@@ -37,7 +37,7 @@ or Gradle
 
 ### `RxJava`方式
 
-`RxJava`调用方式同样默认`IO`线程进行压缩，可在任意线程观察：
+`RxJava`调用方式同样默认`Computation`线程进行压缩，也可以自己定义任何线程，可在任意线程观察：
 
     Luban.get(this)                                     
             .load(file)                               
@@ -62,7 +62,7 @@ or Gradle
 
 #### 2. THIRD_GEAR 
 
-原`Luban`的主要功能，提供了类似微信的压缩效果，适用于普通压缩，没有文件大小限制以及图片的宽高限制
+主要使用`Luban`的算法，提供了类似微信的压缩效果，适用于普通压缩，没有文件大小限制以及图片的宽高限制
 
 #### 3. FIRST_GEAR
 
