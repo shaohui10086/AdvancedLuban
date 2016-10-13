@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -98,6 +99,13 @@ public class Luban {
         if (INSTANCE == null) INSTANCE = new Luban(Luban.getPhotoCacheDir(context));
 
         return INSTANCE;
+    }
+
+    public Luban clearCache() {
+        if (mCacheDir.exists()) {
+            deleteFile(mCacheDir);
+        }
+        return this;
     }
 
     @Deprecated
@@ -460,6 +468,15 @@ public class Luban {
             name = filename;
         }
         return mCacheDir.getAbsolutePath() + File.separator + name;
+    }
+
+    private void deleteFile(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            for (File file : fileOrDirectory.listFiles()) {
+                deleteFile(file);
+            }
+        }
+        fileOrDirectory.delete();
     }
 
     /**
