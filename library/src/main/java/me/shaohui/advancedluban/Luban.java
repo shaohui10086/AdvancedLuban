@@ -14,7 +14,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -110,7 +112,7 @@ public class Luban {
                         return compressImage(gear, file);
                     }
                 })
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorResumeNext(Observable.<File>empty())
                 .doOnRequest(new Action1<Long>() {
@@ -152,7 +154,7 @@ public class Luban {
                         return compressImage(gear, file);
                     }
                 })
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorResumeNext(Observable.<File>empty())
                 .doOnRequest(new Action1<Long>() {
@@ -199,7 +201,7 @@ public class Luban {
         }
 
         return Observable.merge(observables)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .toSortedList(SORT_FILE)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnRequest(new Action1<Long>() {
@@ -263,18 +265,26 @@ public class Luban {
     }
 
     public Observable<File> asObservable() {
+        return asObservable(Schedulers.computation());
+    }
+
+    public Observable<File> asObservable(Scheduler scheduler) {
         checkNotNull(mFile,
                 "the image file cannot be null, please call .load() before this method!");
 
-        return Observable.just(mFile).subscribeOn(Schedulers.io()).map(new Func1<File, File>() {
+        return Observable.fromCallable(new Callable<File>() {
             @Override
-            public File call(File file) {
-                return compressImage(gear, file);
+            public File call() throws Exception {
+                return compressImage(gear, mFile);
             }
-        });
+        }).subscribeOn(scheduler);
     }
 
     public Observable<List<File>> asListObservable() {
+        return asListObservable(Schedulers.computation());
+    }
+
+    public Observable<List<File>> asListObservable(Scheduler scheduler) {
         checkNotNull(mFileList,
                 "the image list cannot be null, please call .load() before this method!");
 
@@ -287,9 +297,7 @@ public class Luban {
                 }
             }));
         }
-        return Observable.merge(observables)
-                .subscribeOn(Schedulers.io())
-                .toSortedList(SORT_FILE);
+        return Observable.merge(observables).toSortedList(SORT_FILE).subscribeOn(scheduler);
     }
 
     private Func2<File, File, Integer> SORT_FILE = new Func2<File, File, Integer>() {
@@ -445,7 +453,7 @@ public class Luban {
     }
 
     private String getCacheFilePath() {
-        String name ;
+        String name;
         if (TextUtils.isEmpty(filename)) {
             name = System.currentTimeMillis() + ".jpg";
         } else {
