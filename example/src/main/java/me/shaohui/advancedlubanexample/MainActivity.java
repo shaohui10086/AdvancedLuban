@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -13,12 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.github.piasy.fresco.draweeview.shaped.ShapedDraweeView;
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import me.shaohui.advancedluban.Luban;
@@ -42,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Fresco.initialize(this);
 
         mFileList = new ArrayList<>();
 
@@ -81,15 +74,14 @@ public class MainActivity extends AppCompatActivity {
                 compressImageList();
             }
         });
-    }
 
-    private void showImageView() {
-        //ShapedDraweeView shapedDraweeView = (ShapedDraweeView) findViewById(R.id.show_image);
-        DraweeController controller = Fresco.newDraweeControllerBuilder()
-                .setUri(Uri.parse(
-                        "file:///storage/emulated/0/Pictures/1476073000559.jpg"))
-                .build();
-        //shapedDraweeView.setController(controller);
+        findViewById(R.id.clear_cache).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Luban.get(MainActivity.this).clearCache();
+                Toast.makeText(MainActivity.this, "清除成功", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private long start;
@@ -106,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
                 .doOnRequest(new Action1<Long>() {
                     @Override
                     public void call(Long aLong) {
-                        //Log.i("TAG:origin", Formatter.formatFileSize(MainActivity.this, mFile.length()));
+                        //Log.i("TAG:origin", Formatter.formatFileSize(MainActivity.this, mFile
+                        // .length()));
                         start = System.currentTimeMillis();
                     }
                 })
@@ -114,9 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<File>() {
                     @Override
                     public void call(File file) {
-                        Log.i("TAG:result", Formatter.formatFileSize(MainActivity.this, file.length()));
+                        Log.i("TAG:result",
+                                Formatter.formatFileSize(MainActivity.this, file.length()));
                         //Log.i("TAG:result", file.getAbsolutePath());
-                        Log.i("TAG:result", "运行时间:" + (System.currentTimeMillis() - start) / 1000f + "s");
+                        Log.i("TAG:result",
+                                "运行时间:" + (System.currentTimeMillis() - start) / 1000f + "s");
                         mImageView.setImageURI(Uri.parse(file.getPath()));
                     }
                 });
@@ -137,8 +132,10 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<File>() {
                     @Override
                     public void call(File file) {
-                        Log.i("TAG:result", Formatter.formatFileSize(MainActivity.this, file.length()));
-                        Log.i("TAG:result", "运行时间:" + (System.currentTimeMillis() - start) / 1000f + "s");
+                        Log.i("TAG:result",
+                                Formatter.formatFileSize(MainActivity.this, file.length()));
+                        Log.i("TAG:result",
+                                "运行时间:" + (System.currentTimeMillis() - start) / 1000f + "s");
                         //Log.i("TAG:result", file.getAbsolutePath());
                         mImageView.setImageURI(Uri.parse(file.getPath()));
                     }
@@ -179,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
                             str = str + file.getPath() + "\n";
                         }
                         mTextView.setText(str);
-                        mImageView.setImageURI(Uri.parse(fileList.get(fileList.size() - 1).getPath()));
+                        mImageView.setImageURI(
+                                Uri.parse(fileList.get(fileList.size() - 1).getPath()));
                     }
                 });
     }

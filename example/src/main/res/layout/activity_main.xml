@@ -44,6 +44,12 @@
             android:layout_height="60dp"
             android:text="@string/compress_image_2"
             />
+    <Button
+            android:id="@+id/clear_cache"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="清除缓存"
+            />
     <ImageView
             android:id="@+id/image_result"
             android:layout_width="200dp"
