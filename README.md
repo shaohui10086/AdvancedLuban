@@ -8,6 +8,13 @@
 
 `AdvancedLuban` —— Is a convenient simple `Android` image compression tool library.Provides multiple compression strategies.Different calling methods，Custom compression,Multi-Image synchronous compression and so on,Focus on a better picture compression experience
 
+Image Count | Origin Total size | Compressed Total size | Time Cost
+--- | --- | --- | ---
+1 | 4.3Mb | 85Kb | 0.23s
+4 | 14.22Mb | 364Kb | 1.38s
+9 | 36.23Mb | 745Kb | 4.43s
+
+
 ## Import
 
 Maven
