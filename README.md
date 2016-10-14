@@ -3,9 +3,10 @@
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 
-> [`Luban`](https://github.com/Curzibn/Luban)（鲁班） —— `Android`图片压缩工具，仿微信朋友圈压缩策略。
+[中文版](/README_ZH.md)
 
-`AdvancedLuban` —— 是一个方便简约的 `Android` 图片压缩工具库，提供多种压缩策略（包括`Luban`原有的压缩策略），多种调用方式，自定义压缩，多图同步压缩，专注更好的图片压缩使用体验
+
+`AdvancedLuban` —— Is a convenient simple `Android` image compression tool library.Provides multiple compression strategies.Different calling methods，Custom compression,Multi-Image synchronous compression and so on,Focus on a better picture compression experience
 
 ## Import
 
@@ -26,67 +27,67 @@ or Gradle
 ## Usage
 
 
-### `Listener`方式
+### `Listener`mode
 
-`AdvancedLuban`内部采用`Computation`线程进行图片压缩，外部调用只需设置好结果监听即可：
+`Advanced Luban` internal` Computation` thread for image compression, external calls simply set the Listener can be:
 
-    Luban.get(this)                     // 初始化Luban
-        .load(File)                     // 传人要压缩的图片
-        .putGear(Luban.THIRD_GEAR)      // 设定压缩模式，默认 THIRD_GEAR
-        .launch(listener);              // 启动压缩并设置监听
+    Luban.get(this)                     // initialization of Luban
+        .load(File)                     // set the image file to compress
+        .putGear(Luban.THIRD_GEAR)      // set the compress mode, default is : THIRD_GEAR
+        .launch(listener);              // start compression and set the listener
 
 ### `RxJava`方式
 
-`RxJava`调用方式同样默认`Computation`线程进行压缩，也可以自己定义任何线程，可在任意线程观察：
+`RxJava` call the same default` Computation` thread to compress, you can also define any thread, can be observed in any thread:
 
     Luban.get(this)                                     
             .load(file)                               
             .putGear(Luban.CUSTOM_GEAR)                 
-            .asObservable()                             // 生成Observable
-            .subscribe(successAction, errorAction)      // 订阅压缩事件
+            .asObservable()                             // generate Observable
+            .subscribe(successAction, errorAction)      // subscribe the compress result
 
-### 压缩模式
+### Compression mode
 
     
 #### 1. CUSTOM_GEAR
 
-`AdvancedLuban`增加的个性化压缩，根据限制要求对图片进行压缩，可以限制：图片的宽度、高度以及图片文件的大小
+compress image file according to the restrictions you set, you can limit: the width, height or file size of the image file 
     
         Luban.get(this)
                 .load(mFile)
-                .setMaxSize(500)                // 限制最终图片大小（单位：Kb）
-                .setMaxHeight(1920)             // 限制图片高度
-                .setMaxWidth(1080)              // 限制图片宽度
-                .putGear(Luban.CUSTOM_GEAR)     // 使用 CUSTOM_GEAR 压缩模式
+                .setMaxSize(500)                // limit the final image size（unit：Kb）
+                .setMaxHeight(1920)             // limit image height
+                .setMaxWidth(1080)              // limit image width
+                .putGear(Luban.CUSTOM_GEAR)     // use CUSTOM GEAR compression mode
                 .asObservable()
 
 #### 2. THIRD_GEAR 
 
-主要使用`Luban`的算法，提供了类似微信的压缩效果，适用于普通压缩，没有文件大小限制以及图片的宽高限制
+Using custom algorithms, according to the picture aspect ratio, the picture is compressed quickly, the resulting image size is about 100Kb, for general compression, no file size limit and picture width limit
 
 #### 3. FIRST_GEAR
 
-`THIRD_GEAR`的简化版本，压缩之后的图片分辨率小于 1280 x 720, 文件最后小于60Kb，特殊情况下，小于原图片的1/5，适用于快速压缩，不计较最终图片品质
+The simplified version of `THIRD GEAR`, the compressed image resolution is less than 1280 x 720, the final file is less than 60Kb. suitable for fast compression, regardless of the final picture quality
 
-## 多图同步压缩
+## Multi-Image synchronous compression
 
-如果你选择的调用方式的是`Listener`方式:
-
-        Luban.get(this)
-                .putGear(Luban.CUSTOM_GEAR)             
-                .load(fileList)                     // 加载所有图片
-                .launch(multiCompressListener);     // 传入一个 OnMultiCompressListener 
-
-`RxJava` 方式：
+If you choose to call the way `Listener`:
 
         Luban.get(this)
                 .putGear(Luban.CUSTOM_GEAR)             
-                .load(fileList)                     // 加载所有图片
-                .asListObservable()                 // 生成Observable<List> 返回压缩成功的所有图片结果
+                .load(fileList)                     // load all images
+                .launch(multiCompressListener);     // passing an OnMultiCompress Listener
+
+or the `RxJava` way to use:
+
+        Luban.get(this)
+                .putGear(Luban.CUSTOM_GEAR)             
+                .load(fileList)                     // load all images
+                .asListObservable()                 // Generates Observable <List<File>. Returns the result of all the images compressed successfully
 
 ## Issue
     
-大家可以根据自己的需求选择不同的压缩模式以及调用方式 ｂ（￣▽￣）ｄ ！最后，欢迎大家提Issue
+You can according to your needs to choose a different compression mode and call mode ! ｂ（￣▽￣）ｄ ！Finally, I welcome the Issue
 
 ## Thanks For
 - https://github.com/Curzibn/Luban
