@@ -433,7 +433,7 @@ public class Luban {
         String filePath = file.getAbsolutePath();
 
         int angle = getImageSpinAngle(filePath);
-        long fileSize = mMaxSize > 0 ? mMaxSize : file.length() / 1024;
+        long fileSize = mMaxSize > 0 && mMaxSize < file.length() / 1024 ? mMaxSize : file.length() / 1024;
 
         int[] size = getImageSize(filePath);
         int width = size[0];
