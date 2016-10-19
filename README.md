@@ -5,6 +5,8 @@
 
 [中文版](/README_ZH.md)
 
+![sketch](/image/sketch_map.png)
+
 
 `AdvancedLuban` —— Is a convenient simple `Android` image compression tool library.Provides multiple compression strategies.Different calling methods，Custom compression,Multi-Image synchronous compression and so on,Focus on a better picture compression experience
 
