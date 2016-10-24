@@ -1,5 +1,5 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.1.3-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.2.0-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 ![sketch](/image/sketch_map.png)
@@ -27,7 +27,7 @@ Maven
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.1.3'
+	compile 'me.shaohui.advancedluban:library:1.2.0'
 
 ## Usage
 
