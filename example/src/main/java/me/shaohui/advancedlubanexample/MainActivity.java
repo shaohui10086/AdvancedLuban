@@ -28,6 +28,11 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView mImageView;
 
+    private ImageView image1;
+    private ImageView image2;
+    private ImageView image3;
+
+
     private TextView mTextView;
 
     private List<File> mFileList;
@@ -40,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
         mFileList = new ArrayList<>();
 
         mImageView = (ImageView) findViewById(R.id.image_result);
+
+        image1 = (ImageView) findViewById(R.id.image_1);
+        image2 = (ImageView) findViewById(R.id.image_2);
+        image3 = (ImageView) findViewById(R.id.image_3);
 
         mTextView = (TextView) findViewById(R.id.text_view);
 
@@ -63,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //compressImage2();
-                compressImage3();
+                //compressImage3();
                 //showImageView();
                 compressImageList();
             }
@@ -71,7 +80,10 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.add_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                compressImageList();
+                //compressImageList();
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUEST_CODE);
             }
         });
 
@@ -164,20 +176,39 @@ public class MainActivity extends AppCompatActivity {
     private void compressImageList() {
         Luban.get(this)
                 .load(mFileList)
-                .setMaxSize(500)
+                .setMaxSize(100)
                 .putGear(Luban.CUSTOM_GEAR)
                 .asListObservable()
+                .doOnRequest(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        start = System.currentTimeMillis();
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<List<File>>() {
                     @Override
                     public void call(List<File> fileList) {
                         String str = "";
+                        long size = 0;
                         for (File file : fileList) {
                             str = str + file.getPath() + "\n";
+                            size += file.length();
+                            Log.i("TAG:result",
+                                    Formatter.formatFileSize(MainActivity.this, file.length()));
                         }
+
+                        Log.i("TAG:result",
+                                Formatter.formatFileSize(MainActivity.this, size));
+                        Log.i("TAG:result",
+                                "运行时间:" + (System.currentTimeMillis() - start) / 1000f + "s");
+
                         mTextView.setText(str);
-                        mImageView.setImageURI(
-                                Uri.parse(fileList.get(fileList.size() - 1).getPath()));
+                        //mImageView.setImageURI(
+                        //        Uri.parse(fileList.get(fileList.size() - 1).getPath()));
+                        image1.setImageURI(Uri.parse(fileList.get(0).getPath()));
+                        image2.setImageURI(Uri.parse(fileList.get(1).getPath()));
+                        image3.setImageURI(Uri.parse(fileList.get(2).getPath()));
                     }
                 });
     }

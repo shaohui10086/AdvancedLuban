@@ -20,7 +20,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.text.format.Formatter;
 import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,7 +34,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
+import rx.functions.FuncN;
 import rx.schedulers.Schedulers;
 
 import static me.shaohui.advancedluban.Preconditions.checkNotNull;
@@ -221,9 +220,19 @@ public class Luban {
             }));
         }
 
-        return Observable.merge(observables)
+        return Observable.zip(observables, new FuncN<List<File>>() {
+            @Override
+            public List<File> call(Object... args) {
+                List<File> images = new ArrayList<>();
+                for (Object o : args) {
+                    if (o instanceof File) {
+                        images.add((File) o);
+                    }
+                }
+                return images;
+            }
+        })
                 .subscribeOn(Schedulers.computation())
-                .toSortedList(SORT_FILE)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnRequest(new Action1<Long>() {
                     @Override
@@ -318,15 +327,19 @@ public class Luban {
                 }
             }));
         }
-        return Observable.merge(observables).toSortedList(SORT_FILE).subscribeOn(scheduler);
+        return Observable.zip(observables, new FuncN<List<File>>() {
+            @Override
+            public List<File> call(Object... args) {
+                List<File> images = new ArrayList<>();
+                for (Object o : args) {
+                    if (o instanceof File) {
+                        images.add((File) o);
+                    }
+                }
+                return images;
+            }
+        }).subscribeOn(scheduler);
     }
-
-    private Func2<File, File, Integer> SORT_FILE = new Func2<File, File, Integer>() {
-        @Override
-        public Integer call(File file, File file2) {
-            return file.getName().compareTo(file2.getName());
-        }
-    };
 
     private File compressImage(int gear, File file) {
         switch (gear) {
@@ -446,7 +459,8 @@ public class Luban {
         String filePath = file.getAbsolutePath();
 
         int angle = getImageSpinAngle(filePath);
-        long fileSize = mMaxSize > 0 && mMaxSize < file.length() / 1024 ? mMaxSize : file.length() / 1024;
+        long fileSize =
+                mMaxSize > 0 && mMaxSize < file.length() / 1024 ? mMaxSize : file.length() / 1024;
 
         int[] size = getImageSize(filePath);
         int width = size[0];
