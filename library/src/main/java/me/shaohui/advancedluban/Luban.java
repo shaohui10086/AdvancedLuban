@@ -484,6 +484,11 @@ public class Luban {
         width = (int) (size[0] * scale);
         height = (int) (size[1] * scale);
 
+        // 不压缩
+        if (mMaxSize > file.length() / 1024f && scale == 1) {
+            return file;
+        }
+
         return compress(filePath, thumbFilePath, width, height, angle, fileSize);
     }
 
