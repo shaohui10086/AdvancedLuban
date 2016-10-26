@@ -17,7 +17,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -217,7 +216,7 @@ public class Luban {
                 public File call(File file) {
                     return compressImage(gear, file);
                 }
-            }));
+            }).subscribeOn(Schedulers.computation()));
         }
 
         return Observable.zip(observables, new FuncN<List<File>>() {
@@ -325,7 +324,7 @@ public class Luban {
                 public File call(File file) {
                     return compressImage(gear, file);
                 }
-            }));
+            }).subscribeOn(scheduler));
         }
         return Observable.zip(observables, new FuncN<List<File>>() {
             @Override
