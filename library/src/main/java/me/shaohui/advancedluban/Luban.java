@@ -299,6 +299,10 @@ public class Luban {
     }
 
     public Observable<File> asObservable(Scheduler scheduler) {
+        return asObservableCurrentThread().subscribeOn(scheduler);
+    }
+
+    public Observable<File> asObservableCurrentThread() {
         checkNotNull(mFile,
                 "the image file cannot be null, please call .load() before this method!");
 
@@ -307,7 +311,7 @@ public class Luban {
             public File call() throws Exception {
                 return compressImage(gear, mFile);
             }
-        }).subscribeOn(scheduler);
+        });
     }
 
     public Observable<List<File>> asListObservable() {
@@ -315,6 +319,10 @@ public class Luban {
     }
 
     public Observable<List<File>> asListObservable(Scheduler scheduler) {
+        return asListObservableCurrentThread().subscribeOn(scheduler);
+    }
+
+    public Observable<List<File>> asListObservableCurrentThread() {
         checkNotNull(mFileList,
                 "the image list cannot be null, please call .load() before this method!");
 
@@ -325,7 +333,7 @@ public class Luban {
                 public File call(File file) {
                     return compressImage(gear, file);
                 }
-            }).subscribeOn(scheduler));
+            }).subscribeOn(Schedulers.computation()));
         }
         return Observable.zip(observables, new FuncN<List<File>>() {
             @Override
@@ -338,7 +346,7 @@ public class Luban {
                 }
                 return images;
             }
-        }).subscribeOn(scheduler);
+        });
     }
 
     private File compressImage(int gear, File file) {
@@ -659,17 +667,19 @@ public class Luban {
         int options = 100;
         bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);
 
-        while (stream.toByteArray().length / 1024 > size && options > 6) {
+        while (stream.size() / 1024 > size && options > 6) {
             stream.reset();
             options -= 6;
             bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);
         }
+        bitmap.recycle();
 
         try {
             FileOutputStream fos = new FileOutputStream(filePath);
             fos.write(stream.toByteArray());
             fos.flush();
             fos.close();
+            stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

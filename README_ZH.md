@@ -1,10 +1,10 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.2.5-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.2.7-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 ![sketch](/image/sketch_map.png)
 
-`AdvancedLuban` —— 是一个方便简约的 `Android` 图片压缩工具库，提供多种压缩策略（包括`Luban`原有的压缩策略），多种调用方式，自定义压缩，多图同步压缩，专注更好的图片压缩使用体验
+`AdvancedLuban` —— 是一个方便简约的 `Android` 图片压缩工具库，提供多种压缩策略（包括`Luban`原有的压缩策略），多种调用方式，自定义压缩，多图压缩，专注更好的图片压缩使用体验
 
 
 照片数量 | 原图总大小 | 压缩后总大小 | 总耗时
@@ -20,14 +20,14 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.2.5</version>
+      <version>1.2.7</version>
       <type>pom</type>
     </dependency>
 
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.2.5'
+	compile 'me.shaohui.advancedluban:library:1.2.7'
 
 ## Usage
 
@@ -74,7 +74,7 @@ or Gradle
 
 `THIRD_GEAR`的简化版本，压缩之后的图片分辨率小于 1280 x 720, 文件最后小于60Kb，特殊情况下，小于原图片的1/5，适用于快速压缩，不计较最终图片品质
 
-## 多图同步压缩
+## 多图压缩
 
 如果你选择的调用方式的是`Listener`方式:
 
@@ -89,6 +89,8 @@ or Gradle
                 .putGear(Luban.CUSTOM_GEAR)             
                 .load(fileList)                     // 加载所有图片
                 .asListObservable()                 // 生成Observable<List> 返回压缩成功的所有图片结果
+               
+> 为什么不是多图并行压缩的？之前曾经尝试过多图并行压缩，但是因为在压缩的过程中，需要占用一定的内存，如果同时压缩9张5Mb左右大小的图片，很容易导致OOM，所以决定在解决OOM问题之前，多图压缩都是串行的。
 
 ## Issue
     
