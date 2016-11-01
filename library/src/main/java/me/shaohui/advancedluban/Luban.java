@@ -371,6 +371,7 @@ public class Luban {
         int angle = getImageSpinAngle(filePath);
         int width = getImageSize(filePath)[0];
         int height = getImageSize(filePath)[1];
+        boolean flip = width > height;
         int thumbW = width % 2 == 1 ? width + 1 : width;
         int thumbH = height % 2 == 1 ? height + 1 : height;
 
@@ -418,7 +419,8 @@ public class Luban {
             size = size < 100 ? 100 : size;
         }
 
-        return compress(filePath, thumb, thumbW, thumbH, angle, (long) size);
+        return compress(filePath, thumb, flip ? thumbH : thumbW, flip ? thumbW : thumbH, angle,
+                (long) size);
     }
 
     private File firstCompress(@NonNull File file) {
@@ -524,7 +526,7 @@ public class Luban {
      *
      * @param imagePath the path of image
      */
-    public int[] getImageSize(String imagePath) {
+    public static int[] getImageSize(String imagePath) {
         int[] res = new int[2];
 
         BitmapFactory.Options options = new BitmapFactory.Options();
