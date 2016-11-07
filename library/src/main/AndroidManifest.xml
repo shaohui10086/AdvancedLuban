@@ -1,4 +1,2 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="me.shaohui.advancedluban">
-
-</manifest>
+        package="me.shaohui.advancedluban"/>
