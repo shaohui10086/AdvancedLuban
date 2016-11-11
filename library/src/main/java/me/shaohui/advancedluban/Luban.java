@@ -333,7 +333,7 @@ public class Luban {
                 public File call(File file) {
                     return compressImage(gear, file);
                 }
-            }).subscribeOn(Schedulers.computation()));
+            }));
         }
         return Observable.zip(observables, new FuncN<List<File>>() {
             @Override
