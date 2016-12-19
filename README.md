@@ -1,5 +1,5 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.3.0-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.3.1-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 
@@ -24,14 +24,14 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.3.0</version>
+      <version>1.3.1</version>
       <type>pom</type>
     </dependency>
 
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.3.0'
+	compile 'me.shaohui.advancedluban:library:1.3.1'
 
 ## Usage
 
@@ -40,8 +40,7 @@ or Gradle
 
 `Advanced Luban` internal` Computation` thread for image compression, external calls simply set the Listener can be:
 
-    Luban.get(this)                     // initialization of Luban
-        .load(File)                     // set the image file to compress
+    Luban.compress(context, file)
         .putGear(Luban.THIRD_GEAR)      // set the compress mode, default is : THIRD_GEAR
         .launch(listener);              // start compression and set the listener
 
@@ -49,8 +48,7 @@ or Gradle
 
 `RxJava` call the same default` Computation` thread to compress, you can also define any thread, can be observed in any thread:
 
-    Luban.get(this)                                     
-            .load(file)                               
+    Luban.compress(context, file)                          
             .putGear(Luban.CUSTOM_GEAR)                 
             .asObservable()                             // generate Observable
             .subscribe(successAction, errorAction)      // subscribe the compress result
@@ -62,8 +60,7 @@ or Gradle
 
 compress image file according to the restrictions you set, you can limit: the width, height or file size of the image file 
     
-        Luban.get(this)
-                .load(mFile)
+        Luban.compress(context, file)
                 .setMaxSize(500)                // limit the final image size（unit：Kb）
                 .setMaxHeight(1920)             // limit image height
                 .setMaxWidth(1080)              // limit image width
@@ -93,6 +90,18 @@ or the `RxJava` way to use:
                 .putGear(Luban.CUSTOM_GEAR)             
                 .load(fileList)                     // load all images
                 .asListObservable()                 // Generates Observable <List<File>. Returns the result of all the images compressed successfully
+
+## About OOM
+
+If you use a multi-map compression, we must take into account the risk of OOM, recommend you use CUSTOM_GEAR, and then customize the compression index, to a large extent reduce the risk of OOM, the current test did not find the problem of OOM
+
+## ChangeLog
+
+#### 1.3.1
+- Added custom compression format
+- COMO_GEAR used to solve the problem of OOM
+- Refactored most of the code
+- To support WebP, the minimum supported version is increased to 14
 
 ## Issue
     

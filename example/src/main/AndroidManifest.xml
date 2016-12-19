@@ -19,8 +19,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".WeixinActivity">
-        </activity>
+        <activity
+                android:configChanges="orientation|screenSize"
+                android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity" />
     </application>
 
 </manifest>

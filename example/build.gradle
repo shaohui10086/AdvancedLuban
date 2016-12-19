@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "me.shaohui.advancedluban"
         minSdkVersion 15
@@ -10,6 +10,15 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    splits {
+        density {
+            enable false
+        }
+        abi {
+            enable false
+        }
     }
     buildTypes {
         release {
@@ -27,4 +36,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
     compile project(':library')
+    compile 'com.github.lovetuzitong:MultiImageSelector:1.2'
 }

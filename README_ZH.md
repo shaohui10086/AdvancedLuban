@@ -1,5 +1,5 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.3.0-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.3.1-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 ![sketch](/image/sketch_map.png)
@@ -20,14 +20,14 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.3.0</version>
+      <version>1.3.1</version>
       <type>pom</type>
     </dependency>
 
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.3.0'
+	compile 'me.shaohui.advancedluban:library:1.3.1'
 
 ## Usage
 
@@ -36,17 +36,15 @@ or Gradle
 
 `AdvancedLuban`内部采用`Computation`线程进行图片压缩，外部调用只需设置好结果监听即可：
 
-    Luban.get(this)                     // 初始化Luban
-        .load(File)                     // 传人要压缩的图片
+    Luban.compress(context, file)       // 初始化Luban，并传入要压缩的图片
         .putGear(Luban.THIRD_GEAR)      // 设定压缩模式，默认 THIRD_GEAR
         .launch(listener);              // 启动压缩并设置监听
 
 ### `RxJava`方式
 
-`RxJava`调用方式同样默认`Computation`线程进行压缩，也可以自己定义任何线程，可在任意线程观察：
+`RxJava`调用方式同样默认`Computation`线程进行压缩，可在任意线程观察，默认是主线程：
 
-    Luban.get(this)                                     
-            .load(file)                               
+    Luban.compress(context, file)                           
             .putGear(Luban.CUSTOM_GEAR)                 
             .asObservable()                             // 生成Observable
             .subscribe(successAction, errorAction)      // 订阅压缩事件
@@ -58,11 +56,11 @@ or Gradle
 
 `AdvancedLuban`增加的个性化压缩，根据限制要求对图片进行压缩，可以限制：图片的宽度、高度以及图片文件的大小
     
-        Luban.get(this)
-                .load(mFile)
+        Luban.compress(context, file)
                 .setMaxSize(500)                // 限制最终图片大小（单位：Kb）
                 .setMaxHeight(1920)             // 限制图片高度
                 .setMaxWidth(1080)              // 限制图片宽度
+                .setCompressFormat()            // 自定义压缩图片格式，目前只支持：JEPG和WEBP，因为png不支持压缩图片品质
                 .putGear(Luban.CUSTOM_GEAR)     // 使用 CUSTOM_GEAR 压缩模式
                 .asObservable()
 
@@ -78,23 +76,35 @@ or Gradle
 
 如果你选择的调用方式的是`Listener`方式:
 
-        Luban.get(this)
+        Luban.compress(context, fileList)           // 加载多张图片
                 .putGear(Luban.CUSTOM_GEAR)             
-                .load(fileList)                     // 加载所有图片
                 .launch(multiCompressListener);     // 传入一个 OnMultiCompressListener 
 
 `RxJava` 方式：
 
-        Luban.get(this)
+        Luban.compress(context, fileList)           // 加载多张图片
                 .putGear(Luban.CUSTOM_GEAR)             
-                .load(fileList)                     // 加载所有图片
                 .asListObservable()                 // 生成Observable<List> 返回压缩成功的所有图片结果
                
 > 为什么不是多图并行压缩的？之前曾经尝试过多图并行压缩，但是因为在压缩的过程中，需要占用一定的内存，如果同时压缩9张5Mb左右大小的图片，很容易导致OOM，所以决定在解决OOM问题之前，多图压缩都是串行的。
 
+## 关于OOM
+
+如果用的是多图压缩，一定要考虑到OOM的风险，推荐大家使用 CUSTOM_GEAR, 然后自定义压缩指标，能够很大程度上降低OOM的风险，目前测试暂时没有发现过OOM的问题
+
+## ChangeLog 
+
+#### 1.3.1
+- 增加自定义压缩格式
+- 用CUSTOM_GEAR 解决了OOM的问题
+- 重构了大部分代码
+- 为了支持WebP，最低支持版本提高到14
+
 ## Issue
     
 大家可以根据自己的需求选择不同的压缩模式以及调用方式 ｂ（￣▽￣）ｄ ！最后，欢迎大家提Issue
+
+## TODO
 
 ## Thanks For
 - https://github.com/Curzibn/Luban
