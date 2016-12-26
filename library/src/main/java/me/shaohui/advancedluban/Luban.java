@@ -170,38 +170,21 @@ public class Luban {
     }
 
     /**
-     * 返回File Observable，并在AndroidSchedulers.mainThread 订阅
+     * 返回File Observable
      * @return
      */
     public Observable<File> asObservable() {
-        return asObservable(AndroidSchedulers.mainThread());
-    }
-
-    /**
-     * 返回File Observable，并在指定线程订阅
-     * @return
-     */
-    public Observable<File> asObservable(Scheduler scheduler) {
         LubanCompresser compresser = new LubanCompresser(mBuilder);
-        return compresser.singleAction(mFile, scheduler);
+        return compresser.singleAction(mFile);
     }
 
     /**
-     * 返回fileList Observable，并在AndroidSchedulers.mainThread 订阅
+     * 返回fileList Observable
      * @return
      */
     public Observable<List<File>> asListObservable() {
-        return asListObservable(AndroidSchedulers.mainThread());
-    }
-
-    /**
-     * 返回返回fileList Observable，并在指定线程订阅
-     * @param scheduler  指定订阅线程
-     * @return
-     */
-    public Observable<List<File>> asListObservable(Scheduler scheduler) {
         LubanCompresser compresser = new LubanCompresser(mBuilder);
-        return compresser.multiAction(mFileList, scheduler);
+        return compresser.multiAction(mFileList);
     }
 
     // Utils

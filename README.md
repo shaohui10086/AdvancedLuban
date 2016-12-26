@@ -1,5 +1,5 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.3.1-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.3.2-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 
@@ -24,14 +24,14 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.3.1</version>
+      <version>1.3.2</version>
       <type>pom</type>
     </dependency>
 
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.3.1'
+	compile 'me.shaohui.advancedluban:library:1.3.2'
 
 ## Usage
 
@@ -96,6 +96,9 @@ or the `RxJava` way to use:
 If you use a multi-map compression, we must take into account the risk of OOM, recommend you use CUSTOM_GEAR, and then customize the compression index, to a large extent reduce the risk of OOM, the current test did not find the problem of OOM
 
 ## ChangeLog
+
+#### 1.3.2
+- Optimize memory usage
 
 #### 1.3.1
 - Added custom compression format

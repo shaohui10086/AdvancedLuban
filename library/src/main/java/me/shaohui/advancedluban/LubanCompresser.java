@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,8 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import rx.Observable;
-import rx.Scheduler;
 import rx.functions.FuncN;
 import rx.schedulers.Schedulers;
 
@@ -29,20 +30,22 @@ class LubanCompresser {
 
     private final LubanBuilder mLuban;
 
+    private ByteArrayOutputStream mByteArrayOutputStream;
+
     LubanCompresser(LubanBuilder luban) {
         mLuban = luban;
     }
 
-    Observable<File> singleAction(final File file, Scheduler scheduler) {
+    Observable<File> singleAction(final File file) {
         return Observable.fromCallable(new Callable<File>() {
             @Override
             public File call() throws Exception {
                 return compressImage(mLuban.gear, file);
             }
-        }).subscribeOn(Schedulers.computation()).observeOn(scheduler);
+        }).subscribeOn(Schedulers.computation());
     }
 
-    Observable<List<File>> multiAction(List<File> files, Scheduler scheduler) {
+    Observable<List<File>> multiAction(List<File> files) {
         List<Observable<File>> observables = new ArrayList<>(files.size());
         for (final File file : files) {
             observables.add(Observable.fromCallable(new Callable<File>() {
@@ -61,7 +64,7 @@ class LubanCompresser {
                 }
                 return files;
             }
-        }).subscribeOn(Schedulers.computation()).observeOn(scheduler);
+        }).subscribeOn(Schedulers.computation());
     }
 
     private File compressImage(int gear, File file) throws IOException {
@@ -97,7 +100,9 @@ class LubanCompresser {
 
         if (scale <= 1 && scale > 0.5625) {
             if (height < 1664) {
-                if (file.length() / 1024 < 150) return file;
+                if (file.length() / 1024 < 150) {
+                    return file;
+                }
 
                 size = (width * height) / Math.pow(1664, 2) * 150;
                 size = size < 60 ? 60 : size;
@@ -119,7 +124,9 @@ class LubanCompresser {
                 size = size < 100 ? 100 : size;
             }
         } else if (scale <= 0.5625 && scale > 0.5) {
-            if (height < 1280 && file.length() / 1024 < 200) return file;
+            if (height < 1280 && file.length() / 1024 < 200) {
+                return file;
+            }
 
             int multiple = height / 1280 == 0 ? 1 : height / 1280;
             thumbW = width / multiple;
@@ -250,8 +257,8 @@ class LubanCompresser {
      * obtain the thumbnail that specify the size
      *
      * @param imagePath the target image path
-     * @param width the width of thumbnail
-     * @param height the height of thumbnail
+     * @param width     the width of thumbnail
+     * @param height    the height of thumbnail
      * @return {@link Bitmap}
      */
     private Bitmap compress(String imagePath, int width, int height) {
@@ -263,29 +270,11 @@ class LubanCompresser {
         int outW = options.outWidth;
         int inSampleSize = 1;
 
-        if (outH > height || outW > width) {
-            int halfH = outH / 2;
-            int halfW = outW / 2;
-
-            while ((halfH / inSampleSize) > height && (halfW / inSampleSize) > width) {
-                inSampleSize *= 2;
-            }
+        while (outH / inSampleSize > height || outW / inSampleSize > width) {
+            inSampleSize *= 2;
         }
 
         options.inSampleSize = inSampleSize;
-
-        options.inJustDecodeBounds = false;
-
-        int heightRatio = (int) Math.ceil(options.outHeight / (float) height);
-        int widthRatio = (int) Math.ceil(options.outWidth / (float) width);
-
-        if (heightRatio > 1 || widthRatio > 1) {
-            if (heightRatio > widthRatio) {
-                options.inSampleSize = heightRatio;
-            } else {
-                options.inSampleSize = widthRatio;
-            }
-        }
         options.inJustDecodeBounds = false;
 
         return BitmapFactory.decodeFile(imagePath, options);
@@ -320,11 +309,11 @@ class LubanCompresser {
      * create the thumbnail with the true rotate angle
      *
      * @param largeImagePath the big image path
-     * @param thumbFilePath the thumbnail path
-     * @param width width of thumbnail
-     * @param height height of thumbnail
-     * @param angle rotation angle of thumbnail
-     * @param size the file size of image
+     * @param thumbFilePath  the thumbnail path
+     * @param width          width of thumbnail
+     * @param height         height of thumbnail
+     * @param angle          rotation angle of thumbnail
+     * @param size           the file size of image
      */
     private File compress(String largeImagePath, String thumbFilePath, int width, int height,
             int angle, long size) throws IOException {
@@ -339,7 +328,7 @@ class LubanCompresser {
      * 旋转图片
      * rotate the image with specified angle
      *
-     * @param angle the angle will be rotating 旋转的角度
+     * @param angle  the angle will be rotating 旋转的角度
      * @param bitmap target image               目标图片
      */
     private static Bitmap rotatingImage(int angle, Bitmap bitmap) {
@@ -357,32 +346,38 @@ class LubanCompresser {
      * Save image with specified size
      *
      * @param filePath the image file save path 储存路径
-     * @param bitmap the image what be save   目标图片
-     * @param size the file size of image   期望大小
+     * @param bitmap   the image what be save   目标图片
+     * @param size     the file size of image   期望大小
      */
     private File saveImage(String filePath, Bitmap bitmap, long size) throws IOException {
         checkNotNull(bitmap, TAG + "bitmap cannot be null");
 
         File result = new File(filePath.substring(0, filePath.lastIndexOf("/")));
 
-        if (!result.exists() && !result.mkdirs()) return null;
+        if (!result.exists() && !result.mkdirs()) {
+            return null;
+        }
 
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (mByteArrayOutputStream == null) {
+            mByteArrayOutputStream = new ByteArrayOutputStream(
+                    bitmap.getWidth() * bitmap.getHeight());
+        } else {
+            mByteArrayOutputStream.reset();
+        }
+
         int options = 100;
-        bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);
+        bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
 
-        while (stream.size() / 1024 > size && options > 6) {
-            stream.reset();
+        while (mByteArrayOutputStream.size() / 1024 > size && options > 6) {
+            mByteArrayOutputStream.reset();
             options -= 6;
-            bitmap.compress(mLuban.compressFormat, options, stream);
+            bitmap.compress(mLuban.compressFormat, options, mByteArrayOutputStream);
         }
         bitmap.recycle();
 
         FileOutputStream fos = new FileOutputStream(filePath);
-        fos.write(stream.toByteArray());
-        fos.flush();
+        mByteArrayOutputStream.writeTo(fos);
         fos.close();
-        stream.close();
 
         return new File(filePath);
     }
