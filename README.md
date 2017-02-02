@@ -36,7 +36,7 @@ or Gradle
 ## Usage
 
 
-### `Listener`mode
+### `Listener` mode
 
 `Advanced Luban` internal` Computation` thread for image compression, external calls simply set the Listener can be:
 
@@ -44,7 +44,7 @@ or Gradle
         .putGear(Luban.THIRD_GEAR)      // set the compress mode, default is : THIRD_GEAR
         .launch(listener);              // start compression and set the listener
 
-### `RxJava`方式
+### `RxJava` mode
 
 `RxJava` call the same default` Computation` thread to compress, you can also define any thread, can be observed in any thread:
 
