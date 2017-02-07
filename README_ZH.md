@@ -1,5 +1,5 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.3.2-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.3.3-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 ![sketch](/image/sketch_map.png)
@@ -20,14 +20,14 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.3.2</version>
+      <version>1.3.3</version>
       <type>pom</type>
     </dependency>
 
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.3.2'
+	compile 'me.shaohui.advancedluban:library:1.3.3'
 
 ## Usage
 
@@ -42,7 +42,7 @@ or Gradle
 
 ### `RxJava`方式
 
-`RxJava`调用方式同样默认`Computation`线程进行压缩，可在任意线程观察，默认是主线程：
+`RxJava`调用方式同样默认`Computation`线程进行压缩, 主线程处理结果
 
     Luban.compress(context, file)                           
             .putGear(Luban.CUSTOM_GEAR)                 
@@ -108,6 +108,9 @@ or Gradle
 大家可以根据自己的需求选择不同的压缩模式以及调用方式 ｂ（￣▽￣）ｄ ！最后，欢迎大家提Issue
 
 ## TODO
+
+- 取消旋转
+- 增加各类compresser： JPEG，PNG，GIF，WEBP
 
 ## Thanks For
 - https://github.com/Curzibn/Luban

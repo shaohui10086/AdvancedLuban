@@ -126,7 +126,7 @@ public class Luban {
      * @param listener 接收回调结果
      */
     public void launch(final OnCompressListener listener) {
-        asObservable().subscribeOn(AndroidSchedulers.mainThread()).doOnRequest(new Action1<Long>() {
+        asObservable().observeOn(AndroidSchedulers.mainThread()).doOnRequest(new Action1<Long>() {
             @Override
             public void call(Long aLong) {
                 listener.onStart();
@@ -149,7 +149,7 @@ public class Luban {
      * @param listener 接收回调结果
      */
     public void launch(final OnMultiCompressListener listener) {
-        asListObservable().subscribeOn(AndroidSchedulers.mainThread())
+        asListObservable().observeOn(AndroidSchedulers.mainThread())
                 .doOnRequest(new Action1<Long>() {
                     @Override
                     public void call(Long aLong) {

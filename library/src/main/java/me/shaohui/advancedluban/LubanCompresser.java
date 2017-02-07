@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.FuncN;
 import rx.schedulers.Schedulers;
 
@@ -42,7 +43,7 @@ class LubanCompresser {
             public File call() throws Exception {
                 return compressImage(mLuban.gear, file);
             }
-        }).subscribeOn(Schedulers.computation());
+        }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
     }
 
     Observable<List<File>> multiAction(List<File> files) {
@@ -64,7 +65,7 @@ class LubanCompresser {
                 }
                 return files;
             }
-        }).subscribeOn(Schedulers.computation());
+        }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
     }
 
     private File compressImage(int gear, File file) throws IOException {
@@ -319,7 +320,7 @@ class LubanCompresser {
             int angle, long size) throws IOException {
         Bitmap thbBitmap = compress(largeImagePath, width, height);
 
-        thbBitmap = rotatingImage(angle, thbBitmap);
+//        thbBitmap = rotatingImage(angle, thbBitmap);
 
         return saveImage(thumbFilePath, thbBitmap, size);
     }
