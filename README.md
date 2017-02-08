@@ -97,6 +97,9 @@ If you use a multi-map compression, we must take into account the risk of OOM, r
 
 ## ChangeLog
 
+#### 1.3.3
+- Set the default observed in the main thread
+
 #### 1.3.2
 - Optimize memory usage
 
