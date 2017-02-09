@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.FuncN;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 import static me.shaohui.advancedluban.Preconditions.checkNotNull;
 
@@ -56,9 +56,10 @@ class LubanCompresser {
                 }
             }));
         }
-        return Observable.zip(observables, new FuncN<List<File>>() {
+
+        return Observable.zip(observables, new Function<Object[], List<File>>() {
             @Override
-            public List<File> call(Object... args) {
+            public List<File> apply(Object[] args) throws Exception {
                 List<File> files = new ArrayList<>(args.length);
                 for (Object o : args) {
                     files.add((File) o);

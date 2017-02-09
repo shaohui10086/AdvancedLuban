@@ -1,5 +1,5 @@
 # AdvancedLuban
-[![build](https://img.shields.io/badge/build-1.3.3-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
+[![build](https://img.shields.io/badge/build-1.3.4-brightgreen.svg?maxAge=2592000)](https://bintray.com/shaohui/maven/AdvancedLuban)
 [![license](https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000)](https://github.com/shaohui10086/AdvancedLuban/blob/master/LICENSE)
 
 ![sketch](/image/sketch_map.png)
@@ -20,14 +20,14 @@ Maven
     <dependency>
       <groupId>me.shaohui.advancedluban</groupId>
       <artifactId>library</artifactId>
-      <version>1.3.3</version>
+      <version>1.3.4</version>
       <type>pom</type>
     </dependency>
 
     
 or Gradle
 
-	compile 'me.shaohui.advancedluban:library:1.3.3'
+	compile 'me.shaohui.advancedluban:library:1.3.4'
 
 ## Usage
 
@@ -93,6 +93,9 @@ or Gradle
 如果用的是多图压缩，一定要考虑到OOM的风险，推荐大家使用 CUSTOM_GEAR, 然后自定义压缩指标，能够很大程度上降低OOM的风险，目前测试暂时没有发现过OOM的问题
 
 ## ChangeLog 
+
+#### 1.3.4
+- 更新RxJava2
 
 #### 1.3.3
 - 设置默认观察在主线程

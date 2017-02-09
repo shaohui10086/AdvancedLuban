@@ -17,6 +17,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.IntDef;
 import android.util.Log;
+
 import java.io.File;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,27 +25,24 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
-import static me.shaohui.advancedluban.Preconditions.checkNotNull;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 public class Luban {
 
     public static final int FIRST_GEAR = 1;
+
     public static final int THIRD_GEAR = 3;
+
     public static final int CUSTOM_GEAR = 4;
 
     private static final String TAG = "Luban";
+
     private static String DEFAULT_DISK_CACHE_DIR = "luban_disk_cache";
 
     private File mFile;
@@ -73,8 +71,6 @@ public class Luban {
 
     /**
      * 自定义压缩模式 FIRST_GEAR、THIRD_GEAR、CUSTOM_GEAR
-     * @param gear
-     * @return
      */
     public Luban putGear(@GEAR int gear) {
         mBuilder.gear = gear;
@@ -83,8 +79,6 @@ public class Luban {
 
     /**
      * 自定义图片压缩格式
-     * @param compressFormat
-     * @return
      */
     public Luban setCompressFormat(Bitmap.CompressFormat compressFormat) {
         mBuilder.compressFormat = compressFormat;
@@ -93,8 +87,6 @@ public class Luban {
 
     /**
      * CUSTOM_GEAR 指定目标图片的最大体积
-     * @param size
-     * @return
      */
     public Luban setMaxSize(int size) {
         mBuilder.maxSize = size;
@@ -103,8 +95,8 @@ public class Luban {
 
     /**
      * CUSTOM_GEAR 指定目标图片的最大宽度
+     *
      * @param width 最大宽度
-     * @return
      */
     public Luban setMaxWidth(int width) {
         mBuilder.maxWidth = width;
@@ -113,8 +105,8 @@ public class Luban {
 
     /**
      * CUSTOM_GEAR 指定目标图片的最大高度
+     *
      * @param height 最大高度
-     * @return
      */
     public Luban setMaxHeight(int height) {
         mBuilder.maxHeight = height;
@@ -123,47 +115,52 @@ public class Luban {
 
     /**
      * listener调用方式，在主线程订阅并将返回结果通过 listener 通知调用方
+     *
      * @param listener 接收回调结果
      */
     public void launch(final OnCompressListener listener) {
-        asObservable().observeOn(AndroidSchedulers.mainThread()).doOnRequest(new Action1<Long>() {
-            @Override
-            public void call(Long aLong) {
-                listener.onStart();
-            }
-        }).subscribe(new Action1<File>() {
-            @Override
-            public void call(File file) {
-                listener.onSuccess(file);
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                listener.onError(throwable);
-            }
-        });
+        asObservable().observeOn(AndroidSchedulers.mainThread()).doOnSubscribe(
+                new Consumer<Disposable>() {
+                    @Override
+                    public void accept(Disposable disposable) throws Exception {
+                        listener.onStart();
+                    }
+                })
+                .subscribe(new Consumer<File>() {
+                    @Override
+                    public void accept(File file) throws Exception {
+                        listener.onSuccess(file);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        listener.onError(throwable);
+                    }
+                });
     }
 
     /**
      * listener调用方式，在主线程订阅并将返回结果通过 listener 通知调用方
+     *
      * @param listener 接收回调结果
      */
     public void launch(final OnMultiCompressListener listener) {
         asListObservable().observeOn(AndroidSchedulers.mainThread())
-                .doOnRequest(new Action1<Long>() {
+                .doOnSubscribe(new Consumer<Disposable>() {
                     @Override
-                    public void call(Long aLong) {
+                    public void accept(Disposable disposable) throws Exception {
                         listener.onStart();
                     }
                 })
-                .subscribe(new Action1<List<File>>() {
+                .subscribe(new Consumer<List<File>>() {
                     @Override
-                    public void call(List<File> files) {
+                    public void accept(List<File> files) throws Exception {
                         listener.onSuccess(files);
                     }
-                }, new Action1<Throwable>() {
+
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) throws Exception {
                         listener.onError(throwable);
                     }
                 });
@@ -171,7 +168,6 @@ public class Luban {
 
     /**
      * 返回File Observable
-     * @return
      */
     public Observable<File> asObservable() {
         LubanCompresser compresser = new LubanCompresser(mBuilder);
@@ -180,7 +176,6 @@ public class Luban {
 
     /**
      * 返回fileList Observable
-     * @return
      */
     public Observable<List<File>> asListObservable() {
         LubanCompresser compresser = new LubanCompresser(mBuilder);
@@ -206,7 +201,7 @@ public class Luban {
      * use to store
      * retrieved media and thumbnails.
      *
-     * @param context A context.
+     * @param context   A context.
      * @param cacheName The name of the subdirectory in which to store the cache.
      * @see #getPhotoCacheDir(Context)
      */
@@ -229,7 +224,6 @@ public class Luban {
     /**
      * 清空Luban所产生的缓存
      * Clears the cache generated by Luban
-     * @return
      */
     public Luban clearCache() {
         if (mBuilder.cacheDir.exists()) {
@@ -251,7 +245,7 @@ public class Luban {
         fileOrDirectory.delete();
     }
 
-    @IntDef({ FIRST_GEAR, THIRD_GEAR, CUSTOM_GEAR })
+    @IntDef({FIRST_GEAR, THIRD_GEAR, CUSTOM_GEAR})
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.SOURCE)
     @Documented

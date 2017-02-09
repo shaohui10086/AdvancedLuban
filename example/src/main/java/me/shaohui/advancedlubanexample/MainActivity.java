@@ -1,50 +1,38 @@
 package me.shaohui.advancedlubanexample;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.RadioGroup;
+
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.functions.Consumer;
 import me.nereo.multi_image_selector.MultiImageSelector;
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 import me.shaohui.advancedluban.Luban;
 import me.shaohui.advancedluban.OnCompressListener;
 import me.shaohui.advancedluban.OnMultiCompressListener;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "LubanExample";
+
     private static final int REQUEST_CODE = 1;
 
-    private File mFile;
-
-    private ImageView mImageView;
-
-    private ImageView image1;
-    private ImageView image2;
-    private ImageView image3;
-
-
-    private TextView mTextView;
-
     private List<File> mFileList;
+
+    private List<ImageView> mImageViews;
+
+    private RadioGroup mMethodGroup;
+
+    private RadioGroup mGearGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,146 +41,170 @@ public class MainActivity extends AppCompatActivity {
 
         mFileList = new ArrayList<>();
 
-        mImageView = (ImageView) findViewById(R.id.image_result);
+        mImageViews = new ArrayList<>();
+        mImageViews.add((ImageView) findViewById(R.id.image_1));
+        mImageViews.add((ImageView) findViewById(R.id.image_2));
+        mImageViews.add((ImageView) findViewById(R.id.image_3));
+        mImageViews.add((ImageView) findViewById(R.id.image_4));
+        mImageViews.add((ImageView) findViewById(R.id.image_5));
+        mImageViews.add((ImageView) findViewById(R.id.image_6));
+        mImageViews.add((ImageView) findViewById(R.id.image_7));
+        mImageViews.add((ImageView) findViewById(R.id.image_8));
+        mImageViews.add((ImageView) findViewById(R.id.image_9));
 
-        image1 = (ImageView) findViewById(R.id.image_1);
-        image2 = (ImageView) findViewById(R.id.image_2);
-        image3 = (ImageView) findViewById(R.id.image_3);
+        mMethodGroup = (RadioGroup) findViewById(R.id.method_group);
+        mGearGroup = (RadioGroup) findViewById(R.id.gear_group);
 
-        mTextView = (TextView) findViewById(R.id.text_view);
-
-        //findViewById(R.id.add_image).setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
-        //        Log.i("TAG", "选择图片");
-        //        Intent intent = new Intent(Intent.ACTION_PICK,
-        //                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        //        startActivityForResult(intent, REQUEST_CODE);
-        //    }
-        //});
-
-        //findViewById(R.id.compress_image).setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
-        //        compressImage();
-        //        //showImageView();
-        //    }
-        //});
-        findViewById(R.id.compress_image2).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.select_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //compressImage2();
-                //compressImage3();
-                //showImageView();
-                //compressImageList();
-                //testCompressMemory(mFileList.get(0));
-                //checkCallback();
-                compressImageList();
+                MultiImageSelector.create().start(MainActivity.this, REQUEST_CODE);
             }
         });
-
-        findViewById(R.id.add_image).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.compress_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //compressImageList();
-                //Intent intent = new Intent(Intent.ACTION_PICK,
-                //        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                //startActivityForResult(intent, REQUEST_CODE);
-                MultiImageSelector.create().count(9).multi().start(MainActivity.this, REQUEST_CODE);
+                compressImage();
             }
         });
-
-        //findViewById(R.id.clear_cache).setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
-        //        Luban.get(MainActivity.this).clearCache();
-        //        Toast.makeText(MainActivity.this, "清除成功", Toast.LENGTH_SHORT).show();
-        //    }
-        //});
     }
 
-    private long start;
-
     private void compressImage() {
-        int size = 500;
+        int gear;
+        switch (mGearGroup.getCheckedRadioButtonId()) {
+            case R.id.custom_gear:
+                gear = Luban.THIRD_GEAR;
+                break;
+            case R.id.third_gear:
+                gear = Luban.THIRD_GEAR;
+                break;
+            case R.id.first_gear:
+                gear = Luban.FIRST_GEAR;
+                break;
+            default:
+                gear = Luban.THIRD_GEAR;
+        }
+        switch (mMethodGroup.getCheckedRadioButtonId()) {
+            case R.id.method_listener:
+                if (mFileList.size() == 1) {
+                    compressSingleListener(gear);
+                } else {
+                    compressMultiListener(gear);
+                }
+                break;
+            case R.id.method_rxjava:
+                if (mFileList.size() == 1) {
+                    compressSingleRxJava(gear);
+                } else {
+                    compressMultiRxJava(gear);
+                }
+                break;
+            default:
+        }
+    }
+
+
+    private void compressSingleRxJava(int gear) {
+        if (mFileList.isEmpty()) {
+            return;
+        }
+
         Luban.compress(this, mFileList.get(0))
-                .setMaxSize(size)
-                .setMaxHeight(1920)
-                .setMaxWidth(1080)
-                .putGear(Luban.THIRD_GEAR)
+                .putGear(gear)
                 .asObservable()
-                .doOnRequest(new Action1<Long>() {
+                .subscribe(new Consumer<File>() {
                     @Override
-                    public void call(Long aLong) {
-                        //Log.i("TAG:origin", Formatter.formatFileSize(MainActivity.this, mFile
-                        // .length()));
-                        start = System.currentTimeMillis();
+                    public void accept(File file) throws Exception {
+                        mImageViews.get(0).setImageURI(Uri.fromFile(file));
                     }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<File>() {
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(File file) {
-                        Log.i("TAG:result",
-                                Formatter.formatFileSize(MainActivity.this, file.length()));
-                        //Log.i("TAG:result", file.getAbsolutePath());
-                        Log.i("TAG:result",
-                                "运行时间:" + (System.currentTimeMillis() - start) / 1000f + "s");
-                        mImageView.setImageURI(Uri.parse(file.getPath()));
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) throws Exception {
                         throwable.printStackTrace();
                     }
                 });
     }
 
-    private void compressImageList() {
+    private void compressMultiRxJava(int gear) {
+        if (mFileList.isEmpty()) {
+            return;
+        }
         Luban.compress(this, mFileList)
-                .setMaxSize(100)
-                .putGear(Luban.CUSTOM_GEAR)
-                .setCompressFormat(Bitmap.CompressFormat.JPEG)
+                .putGear(gear)
                 .asListObservable()
-                .doOnRequest(new Action1<Long>() {
+                .subscribe(new Consumer<List<File>>() {
                     @Override
-                    public void call(Long aLong) {
-                        //Log.i("TAG:origin", Formatter.formatFileSize(MainActivity.this, mFile
-                        // .length()));
-                        start = System.currentTimeMillis();
+                    public void accept(List<File> files) throws Exception {
+                        int size = files.size();
+                        while (size-- > 0) {
+                            mImageViews.get(size).setImageURI(Uri.fromFile(files.get(size)));
+                        }
                     }
-                })
-                .subscribe(new Action1<List<File>>() {
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(List<File> files) {
-                        Log.i("TAG:result",
-                                Formatter.formatFileSize(MainActivity.this, files.get(0).length()));
-                        //Log.i("TAG:result", file.getAbsolutePath());
-                        Log.i("TAG:result",
-                                "运行时间:" + (System.currentTimeMillis() - start) / 1000f + "s");
-                        mImageView.setImageURI(Uri.parse(files.get(0).getPath()));
-                        image1.setImageURI(Uri.parse(files.get(1).getPath()));
-                        image2.setImageURI(Uri.parse(files.get(2).getPath()));
-                        image3.setImageURI(Uri.parse(files.get(3).getPath()));
-
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) throws Exception {
                         throwable.printStackTrace();
+                    }
+                });
+    }
+
+    private void compressSingleListener(int gear) {
+        if (mFileList.isEmpty()) {
+            return;
+        }
+        Luban.compress(this, mFileList.get(0))
+                .putGear(gear)
+                .launch(new OnCompressListener() {
+                    @Override
+                    public void onStart() {
+                        Log.i(TAG, "start");
+                    }
+
+                    @Override
+                    public void onSuccess(File file) {
+                        mImageViews.get(0).setImageURI(Uri.fromFile(file));
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    private void compressMultiListener(int gear) {
+        if (mFileList.isEmpty()) {
+            return;
+        }
+        Luban.compress(this, mFileList)
+                .putGear(gear)
+                .launch(new OnMultiCompressListener() {
+                    @Override
+                    public void onStart() {
+                        Log.i(TAG, "start");
+                    }
+
+                    @Override
+                    public void onSuccess(List<File> fileList) {
+                        int size = fileList.size();
+                        while (size-- > 0) {
+                            mImageViews.get(size).setImageURI(Uri.fromFile(fileList.get(size)));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
                     }
                 });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE) {
-            //if (data != null && data.getData() != null) {
-            //    Uri uri = data.getData();
-            //    getPath(uri);
-            //}
+        if (requestCode == REQUEST_CODE && data != null) {
             mFileList.clear();
-            List<String> path = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
+            List<String> path = data
+                    .getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
             for (String str : path) {
                 mFileList.add(new File(str));
             }
