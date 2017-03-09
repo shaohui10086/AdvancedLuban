@@ -287,9 +287,15 @@ class LubanCompresser {
      *
      * @param path path of target image
      */
-    private int getImageSpinAngle(String path) throws IOException {
+    private int getImageSpinAngle(String path)  {
         int degree = 0;
-        ExifInterface exifInterface = new ExifInterface(path);
+        ExifInterface exifInterface = null;
+        try {
+            exifInterface = new ExifInterface(path);
+        } catch (IOException e) {
+            // 图片不支持获取角度
+            return 0;
+        }
         int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                 ExifInterface.ORIENTATION_NORMAL);
         switch (orientation) {
@@ -321,7 +327,7 @@ class LubanCompresser {
             int angle, long size) throws IOException {
         Bitmap thbBitmap = compress(largeImagePath, width, height);
 
-//        thbBitmap = rotatingImage(angle, thbBitmap);
+        thbBitmap = rotatingImage(angle, thbBitmap);
 
         return saveImage(thumbFilePath, thbBitmap, size);
     }

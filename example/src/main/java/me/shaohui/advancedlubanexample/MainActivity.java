@@ -109,12 +109,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Luban.compress(this, mFileList.get(0))
+        Luban.compress(mFileList.get(0), getFilesDir())
                 .putGear(gear)
                 .asObservable()
                 .subscribe(new Consumer<File>() {
                     @Override
                     public void accept(File file) throws Exception {
+                        Log.i("TAG", file.getAbsolutePath());
                         mImageViews.get(0).setImageURI(Uri.fromFile(file));
                     }
                 }, new Consumer<Throwable>() {
@@ -152,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         if (mFileList.isEmpty()) {
             return;
         }
-        Luban.compress(this, mFileList.get(0))
+        Luban.compress(mFileList.get(0), getFilesDir())
                 .putGear(gear)
                 .launch(new OnCompressListener() {
                     @Override
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onSuccess(File file) {
+                        Log.i("TAG", file.getAbsolutePath());
                         mImageViews.get(0).setImageURI(Uri.fromFile(file));
                     }
 

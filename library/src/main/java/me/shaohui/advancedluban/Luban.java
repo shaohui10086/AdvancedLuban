@@ -25,6 +25,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,9 +65,38 @@ public class Luban {
 
     public static Luban compress(Context context, List<File> files) {
         Luban luban = new Luban(Luban.getPhotoCacheDir(context));
-        luban.mFileList = files;
+        luban.mFileList = new ArrayList<>(files);
         luban.mFile = files.get(0);
         return luban;
+    }
+
+    /**
+     *
+     * @param file 要压缩的单个文件
+     * @param cacheDir 压缩完文件的存储路径
+     */
+    public static Luban compress(File file, File cacheDir) {
+        if (!isCacheDirValid(cacheDir)) {
+            throw new IllegalArgumentException("The cacheDir must be Directory");
+        }
+        Luban luban = new Luban(cacheDir);
+        luban.mFile = file;
+        luban.mFileList = Collections.singletonList(file);
+        return luban;
+    }
+
+    public static Luban compress(List<File> files, File cacheDir) {
+        if (!isCacheDirValid(cacheDir)) {
+            throw new IllegalArgumentException("The cacheDir must be Directory");
+        }
+        Luban luban = new Luban(cacheDir);
+        luban.mFile = files.get(0);
+        luban.mFileList = new ArrayList<>(files);
+        return luban;
+    }
+
+    private static boolean isCacheDirValid(File cacheDir) {
+        return cacheDir.isDirectory() && (cacheDir.exists() || cacheDir.mkdirs());
     }
 
     /**
