@@ -15,6 +15,8 @@ class LubanBuilder {
 
     int maxHeight;
 
+    long ignoreSize;
+
     File cacheDir;
 
     Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;

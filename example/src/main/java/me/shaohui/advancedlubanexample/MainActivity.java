@@ -1,5 +1,6 @@
 package me.shaohui.advancedlubanexample;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,13 +14,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.functions.Consumer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import me.nereo.multi_image_selector.MultiImageSelector;
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 import me.shaohui.advancedluban.Luban;
 import me.shaohui.advancedluban.OnCompressListener;
 import me.shaohui.advancedluban.OnMultiCompressListener;
 
+
+@SuppressLint("CheckResult")
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "LubanExample";
@@ -108,19 +112,23 @@ public class MainActivity extends AppCompatActivity {
         if (mFileList.isEmpty()) {
             return;
         }
-
+        printfFileInfo("压缩前", mFileList.get(0));
         Luban.compress(mFileList.get(0), getFilesDir())
                 .putGear(gear)
+                .ignoreBy(500)
                 .asObservable()
-                .subscribe(new Consumer<File>() {
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new io.reactivex.functions.Consumer<File>() {
                     @Override
-                    public void accept(File file) throws Exception {
+                    public void accept(File file) {
+                        printfFileInfo("压缩后", file);
                         Log.i("TAG", file.getAbsolutePath());
                         mImageViews.get(0).setImageURI(Uri.fromFile(file));
                     }
-                }, new Consumer<Throwable>() {
+                }, new io.reactivex.functions.Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
+                    public void accept(Throwable throwable) {
                         throwable.printStackTrace();
                     }
                 });
@@ -130,29 +138,41 @@ public class MainActivity extends AppCompatActivity {
         if (mFileList.isEmpty()) {
             return;
         }
+        printfFileInfo("压缩前", mFileList);
         Luban.compress(this, mFileList)
                 .putGear(gear)
+                .ignoreBy(500)
                 .asListObservable()
-                .subscribe(new Consumer<List<File>>() {
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new io.reactivex.functions.Consumer<List<File>>() {
                     @Override
-                    public void accept(List<File> files) throws Exception {
+                    public void accept(List<File> files) {
+                        printfFileInfo("压缩后", files);
                         int size = files.size();
                         while (size-- > 0) {
                             mImageViews.get(size).setImageURI(Uri.fromFile(files.get(size)));
                         }
                     }
-                }, new Consumer<Throwable>() {
+                }, new io.reactivex.functions.Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
+                    public void accept(Throwable throwable) {
                         throwable.printStackTrace();
                     }
                 });
     }
 
+    /**
+     * 单张图片压缩
+     *
+     * @param gear
+     */
     private void compressSingleListener(int gear) {
         if (mFileList.isEmpty()) {
             return;
         }
+        printfFileInfo("压缩前", mFileList.get(0));
+
         Luban.compress(mFileList.get(0), getFilesDir())
                 .putGear(gear)
                 .launch(new OnCompressListener() {
@@ -164,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(File file) {
                         Log.i("TAG", file.getAbsolutePath());
+                        printfFileInfo("压缩后", file);
                         mImageViews.get(0).setImageURI(Uri.fromFile(file));
                     }
 
@@ -178,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         if (mFileList.isEmpty()) {
             return;
         }
+        printfFileInfo("压缩前", mFileList);
         Luban.compress(this, mFileList)
                 .putGear(gear)
                 .launch(new OnMultiCompressListener() {
@@ -188,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onSuccess(List<File> fileList) {
+                        printfFileInfo("压缩后", fileList);
                         int size = fileList.size();
                         while (size-- > 0) {
                             mImageViews.get(size).setImageURI(Uri.fromFile(fileList.get(size)));
@@ -201,17 +224,28 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE && data != null) {
             mFileList.clear();
-            List<String> path = data
-                    .getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
+            List<String> path = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
             for (String str : path) {
                 mFileList.add(new File(str));
             }
         }
-
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void printfFileInfo(String prefix, File file) {
+        Log.e(TAG, prefix + "FilePath:" + file.getAbsolutePath());
+        Log.e(TAG, prefix + "FileSize:" + (file.length() / 1024));
+    }
+
+    private void printfFileInfo(String prefix, List<File> files) {
+        for (int i = 0; i < files.size(); i++) {
+            Log.e(TAG, prefix + "FilePath:" + files.get(i).getAbsolutePath());
+            Log.e(TAG, prefix + "FileSize:" + (files.get(i).length() / 1024));
+        }
     }
 }
