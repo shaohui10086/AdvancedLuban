@@ -70,6 +70,10 @@ class LubanCompresser {
     }
 
     private File compressImage(int gear, File file) throws IOException {
+        // 若待压缩文件size(Kb)不大于ignoreSize,不做压缩处理，直接返回【即不满足压缩条件】
+        if ((file.length() / 1024) <= mLuban.ignoreSize) {
+            return file;
+        }
         switch (gear) {
             case Luban.THIRD_GEAR:
                 return thirdCompress(file);
@@ -287,7 +291,7 @@ class LubanCompresser {
      *
      * @param path path of target image
      */
-    private int getImageSpinAngle(String path)  {
+    private int getImageSpinAngle(String path) {
         int degree = 0;
         ExifInterface exifInterface = null;
         try {
@@ -324,7 +328,7 @@ class LubanCompresser {
      * @param size           the file size of image
      */
     private File compress(String largeImagePath, String thumbFilePath, int width, int height,
-            int angle, long size) throws IOException {
+                          int angle, long size) throws IOException {
         Bitmap thbBitmap = compress(largeImagePath, width, height);
 
         thbBitmap = rotatingImage(angle, thbBitmap);

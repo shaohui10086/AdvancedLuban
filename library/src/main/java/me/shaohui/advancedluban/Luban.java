@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 package me.shaohui.advancedluban;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.IntDef;
@@ -34,6 +35,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
+@SuppressLint("CheckResult")
 public class Luban {
 
     public static final int FIRST_GEAR = 1;
@@ -140,6 +142,16 @@ public class Luban {
      */
     public Luban setMaxHeight(int height) {
         mBuilder.maxHeight = height;
+        return this;
+    }
+
+    /**
+     * ignoreSize指定不压缩的阈值，单位为K
+     * @param ignoreSize
+     * @return
+     */
+    public Luban ignoreBy(long ignoreSize){
+        mBuilder.ignoreSize = ignoreSize;
         return this;
     }
 

@@ -1,142 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/activity_main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="调用方式" />
+
+    <RadioGroup
+        android:id="@+id/method_group"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="me.shaohui.advancedlubanexample.MainActivity"
-        >
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <TextView
+        <RadioButton
+            android:id="@+id/method_rxjava"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="调用方式"/>
-    <RadioGroup
-            android:id="@+id/method_group"
-            android:layout_width="match_parent"
+            android:checked="true"
+            android:text="RxJava方式" />
+
+        <RadioButton
+            android:id="@+id/method_listener"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-        <RadioButton
-                android:id="@+id/method_rxjava"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="RxJava方式"/>
-        <RadioButton
-                android:id="@+id/method_listener"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Listener方式"/>
+            android:text="Listener方式" />
 
     </RadioGroup>
+
     <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="压缩方式"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="压缩方式" />
+
     <RadioGroup
-            android:id="@+id/gear_group"
+        android:id="@+id/gear_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/custom_gear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:checked="true"
+            android:text="CUSTOM_GEAR" />
+
         <RadioButton
-                android:id="@+id/custom_gear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="CUSTOM_GEAR"/>
+            android:id="@+id/third_gear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="THIRD_GEAR" />
+
         <RadioButton
-                android:id="@+id/third_gear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="THIRD_GEAR"/>
-        <RadioButton
-                android:id="@+id/first_gear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="FIRST_GEAR"/>
+            android:id="@+id/first_gear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FIRST_GEAR" />
     </RadioGroup>
+
     <Button
-            android:id="@+id/select_image"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="@string/select_image"
-            />
+        android:id="@+id/select_image"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/select_image" />
+
     <Button
-            android:id="@+id/compress_image"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="@string/compress_image"
-            />
+        android:id="@+id/compress_image"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/compress_image" />
+
     <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginTop="16dp">
+        android:layout_width="match_parent"
+        android:layout_height="205dp"
+        android:layout_marginTop="16dp">
+
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:orientation="horizontal"
-                >
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:orientation="horizontal">
+
             <ImageView
-                    android:id="@+id/image_1"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_1"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_2"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_2"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_3"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_3"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_4"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_4"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_5"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_5"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_6"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_6"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_7"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_7"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_8"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_8"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
+
             <ImageView
-                    android:id="@+id/image_9"
-                    android:layout_width="100dp"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    />
+                android:id="@+id/image_9"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
         </LinearLayout>
     </HorizontalScrollView>
 
